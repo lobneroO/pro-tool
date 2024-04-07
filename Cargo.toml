@@ -1,0 +1,13 @@
+[package]
+name = "pro_tool"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# GUI library
+iced = "0.12"
+
+# file chooser
+rfd = "0.14.1"
