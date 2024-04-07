@@ -2,7 +2,7 @@
 
 // #[path = "ui/main_window.rs"]mod main_window;
 use iced::{Element, Settings, Sandbox};
-use iced::widget::{button, text, column, row, container};
+use iced::widget::{button, column, container, horizontal_space, row, text_input};
 use rfd::FileDialog;
 
 // define a struct that contains _ALL_ of the program's state
@@ -11,9 +11,10 @@ struct ProToolState{
     running_order_file: String,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 enum Message{
     ChooseRunningOrderInput,
+    OnRunningOrderInputChanged(String),
 }
 
 impl Sandbox for ProToolState {
@@ -24,7 +25,7 @@ impl Sandbox for ProToolState {
 
     fn new() -> Self {
         Self{
-            running_order_file: "/path/to/file".to_string(),
+            running_order_file: "".to_string(),
         }
     }
 
@@ -42,6 +43,10 @@ impl Sandbox for ProToolState {
                     .pick_file();
 
                 self.running_order_file = file.unwrap().into_os_string().to_str().unwrap().to_string();
+            },
+            Message::OnRunningOrderInputChanged(text) => {
+                // update the text input
+                self.running_order_file = text; 
             }
         }
     }
@@ -49,15 +54,28 @@ impl Sandbox for ProToolState {
 
     fn view(&self) -> Element<'_, Message> { 
         // add a text field for the input file path
-        let running_order_input = text(self.running_order_file.to_string());
+        let running_order_input = text_input("", &self.running_order_file)
+            .padding(10)
+            .on_input(Message::OnRunningOrderInputChanged);
 
         // button to open a file chooser
         let running_order_file_chooser = button("...").on_press(Message::ChooseRunningOrderInput);
 
         // put into a row layout
-        let choose_row = row![running_order_input, running_order_file_chooser];
+        let choose_row = row![horizontal_space(), running_order_input, horizontal_space(), running_order_file_chooser, horizontal_space()];
 
-        container(column![choose_row]).padding(10).into()
+        // create a button for a complete running order and one for a personal running order
+        // creation
+        let create_full_button = button("Create Complete Running Order");
+        let create_personal_button = button("Create Personal Running Order");
+
+        // create a button for settings
+        let settings_button = button("Open Settings");
+
+        let second_row = row![horizontal_space(), create_full_button, horizontal_space()];
+        let third_row = row![horizontal_space(), create_personal_button, horizontal_space(), settings_button, horizontal_space()];
+
+        container(column![choose_row, second_row, third_row]).padding(10).into()
     }
 }
 
