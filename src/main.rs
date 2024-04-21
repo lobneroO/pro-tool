@@ -4,6 +4,9 @@
 use iced::{Element, Settings, Sandbox};
 use iced::widget::{button, column, container, horizontal_space, row, text_input};
 use rfd::FileDialog;
+use std::path::Path;
+
+mod running_order_parser;
 
 // define a struct that contains _ALL_ of the program's state
 #[derive(Default)]
@@ -15,6 +18,7 @@ struct ProToolState{
 enum Message{
     ChooseRunningOrderInput,
     OnRunningOrderInputChanged(String),
+    CreateCompleteRunningOrder,
 }
 
 impl Sandbox for ProToolState {
@@ -47,6 +51,9 @@ impl Sandbox for ProToolState {
             Message::OnRunningOrderInputChanged(text) => {
                 // update the text input
                 self.running_order_file = text; 
+            },
+            Message::CreateCompleteRunningOrder => {
+                running_order_parser::parse_running_order(Path::new(&self.running_order_file));
             }
         }
     }
@@ -66,7 +73,7 @@ impl Sandbox for ProToolState {
 
         // create a button for a complete running order and one for a personal running order
         // creation
-        let create_full_button = button("Create Complete Running Order");
+        let create_full_button = button("Create Complete Running Order").on_press(Message::CreateCompleteRunningOrder);
         let create_personal_button = button("Create Personal Running Order");
 
         // create a button for settings
