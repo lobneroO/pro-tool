@@ -2,6 +2,8 @@
 
 use core::fmt;
 use std::path::Path;
+use std::fs::File;
+use std::io::{self, BufRead};
 
 /// custom error type for running order parser
 #[derive(Clone)]
@@ -38,5 +40,13 @@ struct RunningOrderParser<'a>{
 impl RunningOrderParser<'_>{
     fn parse_file(&self){
         println!("parsing file {}", &self.input_path.display());
+        let file = File::open(self.input_path)
+            .expect("Should have been able to open the file");
+        let reader = io::BufReader::new(file);
+        
+        for line in reader.lines() {
+            println!("{}", line.unwrap());
+        }
     }
 }
+
