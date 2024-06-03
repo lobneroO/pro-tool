@@ -5,6 +5,8 @@ use std::path::Path;
 use std::fs::File;
 use std::io::{self, BufRead};
 
+use crate::band::Band;
+
 /// custom error type for running order parser
 #[derive(Clone)]
 pub struct UnimplementedError;
@@ -25,7 +27,7 @@ impl fmt::Debug for UnimplementedError{
 
 /// static call, user does not need to know about underlying struct
 pub fn parse_running_order(input_path: &Path) -> Result<(), UnimplementedError>{
-    let parser = RunningOrderParser{input_path: &input_path};
+    let parser = RunningOrderParser{input_path};
     parser.parse_file();
 
 
@@ -43,16 +45,21 @@ impl RunningOrderParser<'_>{
         let file = File::open(self.input_path)
             .expect("Should have been able to open the file");
         let reader = io::BufReader::new(file);
+
+        let mut bands: Vec<Band> = vec!();
        
         let mut ctr = 0;
         for line_read in reader.lines() {
             // make sure the line was read once, no need to do it on every op later on
             // remove leading white space, it will never be useful to us
-            let line = line_read.expect("Should have read line")
-                .trim_start();
+            let mut line = line_read
+                .unwrap()
+                .to_owned();
+            line = line.trim_start().to_string();
             
             // file is csv, i.e. comma separated! split at comma
-            let elements: Vec<&str> = line.split(",").collect();
+            let test = line.split(',');
+            let elements: Vec<&str> = test.collect();
             // first line should contain the info order. 
             // if this doesn't fit, the file may be broken
             if ctr == 0 {
@@ -60,7 +67,7 @@ impl RunningOrderParser<'_>{
                 let expected: [&str; 5] = ["Band", "Date", "Start", "End", "Stage"];
                 if elements.len() == expected.len() {
                     for i in 0..5 {
-                        if expected[0] != elements[i] {
+                        if expected[i] != elements[i] {
                              problem = true;
                         }
                     }
@@ -77,13 +84,13 @@ impl RunningOrderParser<'_>{
             }
 
             // skip empty lines
-            if elements.len() == 0 {
+            if elements.is_empty() {
                 continue
             }
 
             // skip lines that start with a '#' char, they are comments.
             // note that leading white space has been removed in the line already.
-            if elements[0].chars().next() == Some('#') {
+            if elements[0].starts_with('#') {
                 continue
             }
 
@@ -99,8 +106,24 @@ impl RunningOrderParser<'_>{
             let date = elements[1];
             let start = elements[2];
             let end = elements[3];
+            // make start date parseable:
+            // date is german format, e.g. "31.03.2024",
+            // time is also german format, e.g. "23:50"
+            // bring it into format "31.03.2024_23:50"
+            let start_date: String = date.to_string() + ":" + start;
+            let end_date: String = date.to_string() + ":" + end;
             let stage = elements[4].trim_end();
 
+            bands.push(Band{
+                name: name.to_string(),
+                start_dt: chrono::DateTime::parse_from_str(
+                    &start_date, "%d.%m.%Y_%H:%M"
+                ).expect("Should have been able to parse date time"),
+                end_dt: chrono::DateTime::parse_from_str(
+                    &end_date, "%d.%m.%Y_%H:%M"
+                ).expect("Should have been able to parse date time"),
+                stage: stage.to_string()
+            });
             println!("{}", line);
 
             ctr += 1;

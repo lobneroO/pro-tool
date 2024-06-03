@@ -6,6 +6,7 @@ use iced::widget::{button, column, container, horizontal_space, row, text_input}
 use rfd::FileDialog;
 use std::path::Path;
 
+mod band;
 mod running_order_parser;
 
 // define a struct that contains _ALL_ of the program's state
