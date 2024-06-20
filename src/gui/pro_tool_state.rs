@@ -66,7 +66,9 @@ impl Sandbox for ProToolState {
         let running_order_file_chooser = button("...").on_press(Message::ChooseRunningOrderInput);
 
         // put into a row layout
-        let choose_row = row![horizontal_space(), running_order_input, horizontal_space(), running_order_file_chooser, horizontal_space()];
+        let choose_row = row![horizontal_space(), horizontal_space(), 
+            running_order_input, horizontal_space(), running_order_file_chooser, 
+            horizontal_space(), horizontal_space()];
 
         // create a button for a complete running order 
         // and one for a personal running order creation
@@ -84,8 +86,10 @@ impl Sandbox for ProToolState {
         // create a button for settings
         let settings_button = button("Open Settings");
 
-        let second_row = row![horizontal_space(), create_full_button, horizontal_space()];
-        let third_row = row![horizontal_space(), create_personal_button, horizontal_space(), settings_button, horizontal_space()];
+        let second_row = row![horizontal_space(), horizontal_space(), 
+            create_full_button, horizontal_space(), create_personal_button,
+            horizontal_space(), horizontal_space()];
+        let third_row = row![horizontal_space(), settings_button, horizontal_space()];
 
         container(column![choose_row, second_row, third_row]).padding(10).into()
     }
