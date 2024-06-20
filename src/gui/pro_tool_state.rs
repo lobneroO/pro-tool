@@ -68,15 +68,16 @@ impl Sandbox for ProToolState {
         // put into a row layout
         let choose_row = row![horizontal_space(), running_order_input, horizontal_space(), running_order_file_chooser, horizontal_space()];
 
-        // create a button for a complete running order and one for a personal running order
-        // creation
+        // create a button for a complete running order 
+        // and one for a personal running order creation
+        let buttons_active = Path::new(&self.running_order_file).is_file();
         let create_full_button = button("Create Complete Running Order").on_press_maybe(
-            if Path::new(&self.running_order_file).is_file() {
+            if buttons_active {
                 Some(Message::CreateCompleteRunningOrder)
             } else { None });
         //button("Create Complete Running Order").on_press(Message::CreateCompleteRunningOrder);
         let create_personal_button = button("Create Personal Running Order").on_press_maybe(
-            if Path::new(&self.running_order_file).is_file() {
+            if buttons_active {
                 Some(Message::CreatePersonalRunningOrder)
             } else { None });
 
