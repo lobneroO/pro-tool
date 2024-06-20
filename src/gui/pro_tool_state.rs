@@ -12,7 +12,6 @@ use crate::running_order_parser;
 #[derive(Default)]
 pub struct ProToolState{
     running_order_file: String,
-    create_full_button_state: bool,
 }
 
 
@@ -25,7 +24,6 @@ impl Sandbox for ProToolState {
     fn new() -> Self {
         Self{
             running_order_file: "".to_string(),
-            create_full_button_state: false,
         }
     }
 
@@ -43,12 +41,10 @@ impl Sandbox for ProToolState {
                     .pick_file();
 
                 self.running_order_file = file.unwrap().into_os_string().to_str().unwrap().to_string();
-                self.create_full_button_state = Path::new(&self.running_order_file).is_file();
             },
             Message::OnRunningOrderInputChanged(text) => {
                 // update the text input
                 self.running_order_file = text; 
-                self.create_full_button_state = Path::new(&self.running_order_file).is_file();
             },
             Message::CreateCompleteRunningOrder => {
                 let _ = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
@@ -74,11 +70,15 @@ impl Sandbox for ProToolState {
 
         // create a button for a complete running order and one for a personal running order
         // creation
-        let create_full_button = button("Create Complete Running Order").on_press(Message::CreateCompleteRunningOrder);
+        let create_full_button = button("Create Complete Running Order").on_press_maybe(
+            if Path::new(&self.running_order_file).is_file() {
+                Some(Message::CreateCompleteRunningOrder)
+            } else { None });
         //button("Create Complete Running Order").on_press(Message::CreateCompleteRunningOrder);
         let create_personal_button = button("Create Personal Running Order").on_press_maybe(
-            if self.create_full_button_state { Some(Message::CreatePersonalRunningOrder) } else { None });
-
+            if Path::new(&self.running_order_file).is_file() {
+                Some(Message::CreatePersonalRunningOrder)
+            } else { None });
 
         // create a button for settings
         let settings_button = button("Open Settings");
