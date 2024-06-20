@@ -2,7 +2,7 @@
 
 // #[path = "ui/main_window.rs"]mod main_window;
 use iced::{Element, Settings, Sandbox};
-use iced::widget::{button, column, container, horizontal_space, row, text_input};
+use iced::widget::{button, Button, column, container, horizontal_space, row, text_input, Text};
 use rfd::FileDialog;
 use std::path::Path;
 
@@ -13,6 +13,7 @@ mod running_order_parser;
 #[derive(Default)]
 struct ProToolState{
     running_order_file: String,
+    create_full_button_state: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -20,6 +21,7 @@ enum Message{
     ChooseRunningOrderInput,
     OnRunningOrderInputChanged(String),
     CreateCompleteRunningOrder,
+    CreatePersonalRunningOrder,
 }
 
 impl Sandbox for ProToolState {
@@ -31,6 +33,7 @@ impl Sandbox for ProToolState {
     fn new() -> Self {
         Self{
             running_order_file: "".to_string(),
+            create_full_button_state: false,
         }
     }
 
@@ -48,13 +51,19 @@ impl Sandbox for ProToolState {
                     .pick_file();
 
                 self.running_order_file = file.unwrap().into_os_string().to_str().unwrap().to_string();
+                self.create_full_button_state = Path::new(&self.running_order_file).is_file();
             },
             Message::OnRunningOrderInputChanged(text) => {
                 // update the text input
                 self.running_order_file = text; 
+                self.create_full_button_state = Path::new(&self.running_order_file).is_file();
             },
             Message::CreateCompleteRunningOrder => {
+
                 running_order_parser::parse_running_order(Path::new(&self.running_order_file));
+            },
+            Message::CreatePersonalRunningOrder => {
+                println!("personal Running order");
             }
         }
     }
@@ -75,7 +84,10 @@ impl Sandbox for ProToolState {
         // create a button for a complete running order and one for a personal running order
         // creation
         let create_full_button = button("Create Complete Running Order").on_press(Message::CreateCompleteRunningOrder);
-        let create_personal_button = button("Create Personal Running Order");
+        //button("Create Complete Running Order").on_press(Message::CreateCompleteRunningOrder);
+        let create_personal_button = button("Create Personal Running Order").on_press_maybe(
+            if self.create_full_button_state { Some(Message::CreatePersonalRunningOrder) } else { None });
+
 
         // create a button for settings
         let settings_button = button("Open Settings");
