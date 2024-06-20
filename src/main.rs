@@ -2,7 +2,7 @@
 
 // #[path = "ui/main_window.rs"]mod main_window;
 use iced::{Element, Settings, Sandbox};
-use iced::widget::{button, Button, column, container, horizontal_space, row, text_input, Text};
+use iced::widget::{button, column, container, horizontal_space, row, text_input};
 use rfd::FileDialog;
 use std::path::Path;
 
@@ -59,10 +59,10 @@ impl Sandbox for ProToolState {
                 self.create_full_button_state = Path::new(&self.running_order_file).is_file();
             },
             Message::CreateCompleteRunningOrder => {
-
-                running_order_parser::parse_running_order(Path::new(&self.running_order_file));
+                let _ = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
             },
             Message::CreatePersonalRunningOrder => {
+                let _ = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
                 println!("personal Running order");
             }
         }
