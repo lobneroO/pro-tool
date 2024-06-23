@@ -26,12 +26,12 @@ impl fmt::Debug for UnimplementedError{
 }
 
 /// static call, user does not need to know about underlying struct
-pub fn parse_running_order(input_path: &Path) -> Result<(), UnimplementedError>{
+pub fn parse_running_order(input_path: &Path) { //-> Result<(), UnimplementedError>{
     let parser = RunningOrderParser{input_path};
     parser.parse_file();
 
 
-    Err(UnimplementedError)    
+    // Err(UnimplementedError)    
 }
 
 /// the parser for an input running order csv file

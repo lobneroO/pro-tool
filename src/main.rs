@@ -8,6 +8,7 @@ mod gui {
     pub mod message;
     pub mod pro_tool_state;
     pub mod main_view;
+    pub mod band_selection_view;
 }
 
 use gui::pro_tool_state::ProToolState;

@@ -1,19 +1,27 @@
 // Tim Lobner
 
 use iced::{Element, Sandbox};
-use iced::widget::{button, column, container, horizontal_space, row, text_input};
 use rfd::FileDialog;
 use std::path::Path;
 
 use crate::gui::message::Message;
 use crate::running_order_parser;
 
+use super::main_view::get_main_view;
+use super::band_selection_view::get_band_selection_view;
+
+#[derive(Default)]
+enum View{
+    #[default] Main,
+    BandSelection,
+}
+
 // define a struct that contains _ALL_ of the program's state
 #[derive(Default)]
 pub struct ProToolState{
-    running_order_file: String,
+    view: View,
+    pub running_order_file: String,
 }
-
 
 impl Sandbox for ProToolState {
     // Message is not necessarily a text,
@@ -24,6 +32,7 @@ impl Sandbox for ProToolState {
     fn new() -> Self {
         Self{
             running_order_file: "".to_string(),
+            view: View::Main,
         }
     }
 
@@ -51,46 +60,20 @@ impl Sandbox for ProToolState {
             },
             Message::CreatePersonalRunningOrder => {
                 let _ = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
+                self.view = View::BandSelection;
                 println!("personal Running order");
             }
         }
     }
 
     fn view(&self) -> Element<'_, Message> { 
-        // add a text field for the input file path
-        let running_order_input = text_input("", &self.running_order_file)
-            .padding(10)
-            .on_input(Message::OnRunningOrderInputChanged);
-
-        // button to open a file chooser
-        let running_order_file_chooser = button("...").on_press(Message::ChooseRunningOrderInput);
-
-        // put into a row layout
-        let choose_row = row![horizontal_space(), horizontal_space(), 
-            running_order_input, horizontal_space(), running_order_file_chooser, 
-            horizontal_space(), horizontal_space()];
-
-        // create a button for a complete running order 
-        // and one for a personal running order creation
-        let buttons_active = Path::new(&self.running_order_file).is_file();
-        let create_full_button = button("Create Complete Running Order").on_press_maybe(
-            if buttons_active {
-                Some(Message::CreateCompleteRunningOrder)
-            } else { None });
-        //button("Create Complete Running Order").on_press(Message::CreateCompleteRunningOrder);
-        let create_personal_button = button("Create Personal Running Order").on_press_maybe(
-            if buttons_active {
-                Some(Message::CreatePersonalRunningOrder)
-            } else { None });
-
-        // create a button for settings
-        let settings_button = button("Open Settings");
-
-        let second_row = row![horizontal_space(), horizontal_space(), 
-            create_full_button, horizontal_space(), create_personal_button,
-            horizontal_space(), horizontal_space()];
-        let third_row = row![horizontal_space(), settings_button, horizontal_space()];
-
-        container(column![choose_row, second_row, third_row]).padding(10).into()
+        match self.view {
+            View::Main => {
+                get_main_view(&self)
+            },
+            View::BandSelection => {
+                get_band_selection_view(&self)
+            },
+        }
     }
 }
