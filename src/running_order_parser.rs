@@ -27,9 +27,9 @@ impl fmt::Debug for UnimplementedError{
 }
 
 /// static call, user does not need to know about underlying struct
-pub fn parse_running_order(input_path: &Path) { //-> Result<(), UnimplementedError>{
+pub fn parse_running_order(input_path: &Path) -> Vec<Band> { //-> Result<(), UnimplementedError>{
     let parser = RunningOrderParser{input_path};
-    parser.parse_file();
+    parser.parse_file()
 
 
     // Err(UnimplementedError)    
@@ -41,7 +41,7 @@ struct RunningOrderParser<'a>{
 }
 
 impl RunningOrderParser<'_>{
-    fn parse_file(&self){
+    fn parse_file(&self) -> Vec<Band> {
         println!("parsing file {}", &self.input_path.display());
         let file = File::open(self.input_path)
             .expect("Should have been able to open the file");
@@ -129,11 +129,13 @@ impl RunningOrderParser<'_>{
                 name: name.to_string(),
                 start_dt: naive_start_date,
                 end_dt: naive_end_date,
-                stage: stage.to_string()
+                stage: stage.to_string(),
+                selected: false,
             });
             println!("{}", line);
             ctr += 1;
         }
+        bands
     }
 }
 
