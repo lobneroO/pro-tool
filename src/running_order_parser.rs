@@ -4,6 +4,7 @@ use core::fmt;
 use std::path::Path;
 use std::fs::File;
 use std::io::{self, BufRead};
+use chrono::NaiveDateTime;
 
 use crate::band::Band;
 
@@ -81,6 +82,12 @@ impl RunningOrderParser<'_>{
                     println!("Expected \"Band,Date,Start,End,Stage\"");
                     println!("There may be problems parsing the input file!");
                 }
+                else {
+                    // first line is the descriptive line, as expected
+                    // TODO: allow csv files without descriptive line?
+                    ctr += 1;
+                    continue;
+                }
             }
 
             // skip empty lines
@@ -110,22 +117,21 @@ impl RunningOrderParser<'_>{
             // date is german format, e.g. "31.03.2024",
             // time is also german format, e.g. "23:50"
             // bring it into format "31.03.2024_23:50"
-            let start_date: String = date.to_string() + ":" + start;
-            let end_date: String = date.to_string() + ":" + end;
+            let start_date: String = date.to_string() + "_" + start;
+            let end_date: String = date.to_string() + "_" + end;
             let stage = elements[4].trim_end();
 
+            let naive_start_date = NaiveDateTime::parse_from_str(&start_date, "%d.%m.%Y_%H:%M")
+                .expect("Should have been able to parse start date");
+            let naive_end_date = NaiveDateTime::parse_from_str(&end_date, "%d.%m.%Y_%H:%M")
+                .expect("Should have been able to parse start date");
             bands.push(Band{
                 name: name.to_string(),
-                start_dt: chrono::DateTime::parse_from_str(
-                    &start_date, "%d.%m.%Y_%H:%M"
-                ).expect("Should have been able to parse date time"),
-                end_dt: chrono::DateTime::parse_from_str(
-                    &end_date, "%d.%m.%Y_%H:%M"
-                ).expect("Should have been able to parse date time"),
+                start_dt: naive_start_date,
+                end_dt: naive_end_date,
                 stage: stage.to_string()
             });
             println!("{}", line);
-
             ctr += 1;
         }
     }

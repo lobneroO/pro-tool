@@ -69,10 +69,10 @@ impl Sandbox for ProToolState {
     fn view(&self) -> Element<'_, Message> { 
         match self.view {
             View::Main => {
-                get_main_view(&self)
+                get_main_view(self)
             },
             View::BandSelection => {
-                get_band_selection_view(&self)
+                get_band_selection_view(self)
             },
         }
     }
