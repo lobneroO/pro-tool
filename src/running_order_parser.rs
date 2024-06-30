@@ -4,6 +4,7 @@ use core::fmt;
 use std::path::Path;
 use std::fs::File;
 use std::io::{self, BufRead};
+use chrono::NaiveDateTime;
 
 use crate::band::Band;
 
@@ -26,12 +27,12 @@ impl fmt::Debug for UnimplementedError{
 }
 
 /// static call, user does not need to know about underlying struct
-pub fn parse_running_order(input_path: &Path) -> Result<(), UnimplementedError>{
+pub fn parse_running_order(input_path: &Path) -> Vec<Band> { //-> Result<(), UnimplementedError>{
     let parser = RunningOrderParser{input_path};
-    parser.parse_file();
+    parser.parse_file()
 
 
-    Err(UnimplementedError)    
+    // Err(UnimplementedError)    
 }
 
 /// the parser for an input running order csv file
@@ -40,7 +41,7 @@ struct RunningOrderParser<'a>{
 }
 
 impl RunningOrderParser<'_>{
-    fn parse_file(&self){
+    fn parse_file(&self) -> Vec<Band> {
         println!("parsing file {}", &self.input_path.display());
         let file = File::open(self.input_path)
             .expect("Should have been able to open the file");
@@ -81,6 +82,12 @@ impl RunningOrderParser<'_>{
                     println!("Expected \"Band,Date,Start,End,Stage\"");
                     println!("There may be problems parsing the input file!");
                 }
+                else {
+                    // first line is the descriptive line, as expected
+                    // TODO: allow csv files without descriptive line?
+                    ctr += 1;
+                    continue;
+                }
             }
 
             // skip empty lines
@@ -110,24 +117,25 @@ impl RunningOrderParser<'_>{
             // date is german format, e.g. "31.03.2024",
             // time is also german format, e.g. "23:50"
             // bring it into format "31.03.2024_23:50"
-            let start_date: String = date.to_string() + ":" + start;
-            let end_date: String = date.to_string() + ":" + end;
+            let start_date: String = date.to_string() + "_" + start;
+            let end_date: String = date.to_string() + "_" + end;
             let stage = elements[4].trim_end();
 
+            let naive_start_date = NaiveDateTime::parse_from_str(&start_date, "%d.%m.%Y_%H:%M")
+                .expect("Should have been able to parse start date");
+            let naive_end_date = NaiveDateTime::parse_from_str(&end_date, "%d.%m.%Y_%H:%M")
+                .expect("Should have been able to parse start date");
             bands.push(Band{
                 name: name.to_string(),
-                start_dt: chrono::DateTime::parse_from_str(
-                    &start_date, "%d.%m.%Y_%H:%M"
-                ).expect("Should have been able to parse date time"),
-                end_dt: chrono::DateTime::parse_from_str(
-                    &end_date, "%d.%m.%Y_%H:%M"
-                ).expect("Should have been able to parse date time"),
-                stage: stage.to_string()
+                start_dt: naive_start_date,
+                end_dt: naive_end_date,
+                stage: stage.to_string(),
+                selected: false,
             });
             println!("{}", line);
-
             ctr += 1;
         }
+        bands
     }
 }
 

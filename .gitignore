@@ -3,3 +3,6 @@
 
 # automaton for neovim workspace
 .automaton
+
+# rust rover
+.idea

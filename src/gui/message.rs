@@ -6,4 +6,9 @@ pub enum Message{
     OnRunningOrderInputChanged(String),
     CreateCompleteRunningOrder,
     CreatePersonalRunningOrder,
+    // for band selection subview
+    BandSelected(bool),
+    // generic Back. may do different things,
+    // depending on which view we're at
+    Back,
 }
