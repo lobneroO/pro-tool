@@ -66,8 +66,9 @@ impl Sandbox for ProToolState {
                 self.view = View::BandSelection;
                 println!("personal Running order");
             },
-            Message::BandSelected(selected) => {
-                println!("test {}", selected);
+            Message::BandSelected(index, selected) => {
+                println!("test {}: {}", self.running_order[index].name, selected);
+                self.running_order[index].selected = selected;
             }
             Message::Back => {
                 if self.view == View::BandSelection {
