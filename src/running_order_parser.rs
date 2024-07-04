@@ -135,6 +135,9 @@ impl RunningOrderParser<'_>{
             println!("{}", line);
             ctr += 1;
         }
+
+        // make sure the bands are sorted by name before returning
+        bands.sort_by_key(|band| band.name.clone());
         bands
     }
 }
