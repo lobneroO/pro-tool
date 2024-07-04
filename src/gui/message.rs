@@ -7,7 +7,8 @@ pub enum Message{
     CreateCompleteRunningOrder,
     CreatePersonalRunningOrder,
     // for band selection subview
-    BandSelected(bool),
+    // first is the index within the running order, second the selection state
+    BandSelected(usize, bool),
     // generic Back. may do different things,
     // depending on which view we're at
     Back,

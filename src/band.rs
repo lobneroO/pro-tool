@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use iced::Element;
 use iced::widget::{container, row, checkbox};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum BandMessage {
     Selected,
     Deselected,
@@ -26,5 +26,16 @@ impl Band{
         ];
 
         container(r).into()
+    }
+
+    pub fn update(&mut self, message: BandMessage) {
+        match message {
+            BandMessage::Selected => {
+                self.selected = true;
+            }
+            BandMessage::Deselected => {
+                self.selected = false;
+            }
+        }
     }
 }
