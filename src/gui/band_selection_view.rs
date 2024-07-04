@@ -1,6 +1,6 @@
 
 use iced::Element;
-use iced::widget::{button, column, container, horizontal_space, row, checkbox};
+use iced::widget::{button, column, container, horizontal_space, row};
 
 use crate::gui::message::Message;
 use crate::gui::pro_tool_state::ProToolState;
@@ -8,14 +8,6 @@ use crate::band::{Band, BandMessage};
 
 pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
     // for every band, add a checkbox
-    // let mut checkboxes: Vec<iced::widget::Checkbox<_>> = vec!();
-
-    // for band in &state.running_order {
-    //     let checkbox = checkbox(band.name.clone(), band.selected)
-    //         .on_toggle(Message::BandSelected);
-    //     checkboxes.push(checkbox);
-    // }
-
     let band_grid = row![
         row(
             state.running_order
@@ -33,8 +25,14 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
                 // which we have to consume here. this means:
                 // turn the BandMessage into a (global) Message
                 .map(|(index, band)| {
-                    band.map(move |message| 
-                        Message::BandSelected(index, message == BandMessage::Selected))
+                    // the message variable is unused, but the closure expects it, 
+                    // so we cannot remove it. instead, hide the warning.
+                    #[allow(unused_variables)]
+                    band.map(move |message: BandMessage|
+                        // we cannot access "band" directly here, but we have the running order and
+                        // index, so we stell get to it. set the selected member to its inverted
+                        // state to make the checkbox a toggle
+                        Message::BandSelected(index, !state.running_order[index].selected))
                 })
         )];
         // .push(checkboxes.iter());
