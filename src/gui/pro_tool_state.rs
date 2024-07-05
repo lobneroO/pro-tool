@@ -10,6 +10,7 @@ use crate::band::Band;
 
 use super::main_view::get_main_view;
 use super::band_selection_view::get_band_selection_view;
+use super::super::timetable::table_creation;
 
 #[derive(Default, PartialEq)]
 enum View{
@@ -60,6 +61,8 @@ impl Sandbox for ProToolState {
             },
             Message::CreateCompleteRunningOrder => {
                 self.running_order = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
+                let out_path = Path::new("test.png");
+                table_creation::create_table(out_path);
             },
             Message::CreatePersonalRunningOrder => {
                 self.running_order = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
