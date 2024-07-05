@@ -9,6 +9,7 @@ edition = "2021"
 chrono = "=0.4.38"
 # GUI library
 iced = "0.12"
+plotters = "0.3.6"
 
 # file chooser
 rfd = "0.14.1"
