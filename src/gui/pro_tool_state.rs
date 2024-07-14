@@ -61,7 +61,7 @@ impl Sandbox for ProToolState {
             },
             Message::CreateCompleteRunningOrder => {
                 self.running_order = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
-                let out_path = Path::new("test.png");
+                let out_path = Path::new("test.svg");
                 table_creation::create_table(out_path);
             },
             Message::CreatePersonalRunningOrder => {
