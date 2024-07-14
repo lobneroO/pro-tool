@@ -51,6 +51,7 @@ pub fn create_table(out_path: &Path){
     // turn into a pdf for printing later
     let drawing_area = SVGBackend::new(out_path, (1024, 768))
         .into_drawing_area();
+    
     drawing_area.fill(&WHITE).unwrap();
     let mut chart = ChartBuilder::on(&drawing_area)
         .caption(current_day, ("Arial", 30))
@@ -74,11 +75,48 @@ pub fn create_table(out_path: &Path){
         .disable_x_mesh()
         .draw().unwrap();
 
+    let plot_area = chart.plotting_area();
+    // plot_area.map_coordinate()
+
+    let center = SegmentValue::CenterOf(&"T Stage");
+    chart.draw_series(
+        vec![
+            Rectangle::new(
+                [(center.clone(), d1), (center.clone(), d2)],
+                Into::<ShapeStyle>::into(BLACK).filled()
+            ),
+        ]
+    ).unwrap();
+    chart.draw_series(
+        vec![
+            Circle::new((center.clone(), d1), 
+                20,
+                BLACK)
+        ]
+    ).unwrap();
+    
+    // let int_data = [(1.0, 3.3)];
+    // chart.draw_series(int_data.map(|(x, y)| {
+    //     EmptyElement::at((x, y))
+    //     + Circle::new((0, 0), 10, BLACK)
+    // })).unwrap();
+    //
+    // let temp_data = [("T Stage", d1, d2)];
+    // chart.draw_series(temp_data.map(|(stage, start, end)| {
+    //     EmptyElement::at((stage, start))
+    //      + Circle::new((0, 0), 10, BLACK)
+    // })).unwrap();
+
+
+    // plot_area.draw(&Rectangle::new(
+    //     [("T Stage", d1), ("T Stage", d2,)], // coordinates
+    //     Into::<ShapeStyle>::into(BLACK).filled(),
+    // )).unwrap();
+    // plot_area.draw(Rectangle::new())
+    
+    // coord_trans()
     // draw based on data
-    drawing_area.draw(&Rectangle::new(
-        [(0, 0), (100, 100,)], // coordinates
-        Into::<ShapeStyle>::into(BLACK).filled(),
-    )).unwrap();
+    
 
     // draw a diagonal line
     // chart.draw_series(
