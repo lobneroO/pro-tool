@@ -6,7 +6,7 @@ use std::path::Path;
 // TODO: use above individual use pattern...
 use plotters::prelude::*;
 
-use chrono::NaiveDate;
+use chrono::{NaiveDate};
 
 use crate::band::Band;
 
@@ -17,7 +17,12 @@ pub fn create_table(out_path: &Path){
     let days = [ "Wednesday", "Thursday", "Friday", "Saturday" ];
     let current_day_index = 2;
     let current_day = days[current_day_index];
-    let stages = [ "Main Stage", "T Stage", "Wera Rebel Stage", "Campsite Circus Stage" ];
+    let stages: Vec<String> = vec![
+        String::from("Main Stage"),
+        String::from("T Stage"),
+        String::from("Wera Rebel Stage"),
+        String::from("Campsite Circus Stage"),
+    ];
 
     // TODO: naive date time not supported by plotter library
     // but UTC is. converting everything utc on the fly should work,
@@ -26,12 +31,14 @@ pub fn create_table(out_path: &Path){
         NaiveDate::from_ymd_opt(2024, 8, 15)
             .unwrap()
             .and_hms_opt(6, 0, 0).
-            unwrap().and_utc();
+            unwrap();
     let last_band_end = 
         NaiveDate::from_ymd_opt(2024, 8, 15)
             .unwrap()
-            .and_hms_opt(11, 59, 0).
-            unwrap().and_utc();
+            .and_hms_opt(20, 59, 0).
+            unwrap();
+    let first_utc = first_band_start.and_utc();
+    let last_utc = last_band_end.and_utc();
 
     let fleshgod = Band {
         name: String::from("Fleshgod Apocalypse"),
@@ -40,17 +47,29 @@ pub fn create_table(out_path: &Path){
         start_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(17, 20, 0).unwrap(), 
         end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(18, 30, 0).unwrap(),
     };
+    let nathrakh = Band {
+        name: String::from("Anaal Nathrakh"),
+        selected: true,
+        stage: String::from("T Stage"),
+        start_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(16, 30, 0).unwrap(),
+        end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(17, 15, 0).unwrap(),
+    };
+    let meshuggah = Band {
+        name: String::from("Meshuggah"),
+        selected: true,
+        stage: String::from("Main Stage"),
+        start_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(17, 30, 0).unwrap(),
+        end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(19, 00, 0).unwrap(),
+    };
 
-    let d1 = NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(17, 20, 0).unwrap().and_utc(); 
-    let d2 = NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(18, 30, 0).unwrap().and_utc(); 
-
-    let data = [d1, d2];
-    let bands = [ fleshgod ];
+    let bands = [ fleshgod, nathrakh, meshuggah ];
 
     // use an SVG backend to have selectable text.
     // turn into a pdf for printing later
     let drawing_area = SVGBackend::new(out_path, (1024, 768))
         .into_drawing_area();
+    
+    let stage_segments = stages.into_segmented();
     
     drawing_area.fill(&WHITE).unwrap();
     let mut chart = ChartBuilder::on(&drawing_area)
@@ -64,7 +83,7 @@ pub fn create_table(out_path: &Path){
         // ----|---------------|-------------|-------
         //   main stage     t stage      wera stage 
         // for that behaviour, we need the into_segmented() command
-        .build_cartesian_2d(stages.into_segmented(), first_band_start..last_band_end)
+        .build_cartesian_2d(stage_segments, first_utc..last_utc)
         .unwrap();
 
     // draw axes labels for time on y axis (top to bottom for increasing time)
@@ -75,51 +94,17 @@ pub fn create_table(out_path: &Path){
         .disable_x_mesh()
         .draw().unwrap();
 
-    let plot_area = chart.plotting_area();
-    // plot_area.map_coordinate()
-
-    let center = SegmentValue::CenterOf(&"T Stage");
+    // draw all bands into the chart
     chart.draw_series(
-        vec![
+        bands.iter().map(|band| {
+
             Rectangle::new(
-                [(center.clone(), d1), (center.clone(), d2)],
+                [
+                    ((SegmentValue::Exact(&band.stage), band.start_dt.and_utc())),
+                    ((SegmentValue::CenterOf(&band.stage), band.end_dt.and_utc())),
+                ],
                 Into::<ShapeStyle>::into(BLACK).filled()
-            ),
-        ]
+            )
+        })
     ).unwrap();
-    chart.draw_series(
-        vec![
-            Circle::new((center.clone(), d1), 
-                20,
-                BLACK)
-        ]
-    ).unwrap();
-    
-    // let int_data = [(1.0, 3.3)];
-    // chart.draw_series(int_data.map(|(x, y)| {
-    //     EmptyElement::at((x, y))
-    //     + Circle::new((0, 0), 10, BLACK)
-    // })).unwrap();
-    //
-    // let temp_data = [("T Stage", d1, d2)];
-    // chart.draw_series(temp_data.map(|(stage, start, end)| {
-    //     EmptyElement::at((stage, start))
-    //      + Circle::new((0, 0), 10, BLACK)
-    // })).unwrap();
-
-
-    // plot_area.draw(&Rectangle::new(
-    //     [("T Stage", d1), ("T Stage", d2,)], // coordinates
-    //     Into::<ShapeStyle>::into(BLACK).filled(),
-    // )).unwrap();
-    // plot_area.draw(Rectangle::new())
-    
-    // coord_trans()
-    // draw based on data
-    
-
-    // draw a diagonal line
-    // chart.draw_series(
-    //     LineSeries::new((0..100).map(|x| (x, 100 -x)), &BLACK),
-    // ).unwrap();
 }
