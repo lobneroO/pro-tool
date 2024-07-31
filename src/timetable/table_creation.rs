@@ -100,8 +100,8 @@ pub fn create_table(out_path: &Path){
 
             Rectangle::new(
                 [
-                    ((SegmentValue::Exact(&band.stage), band.start_dt.and_utc())),
-                    ((SegmentValue::CenterOf(&band.stage), band.end_dt.and_utc())),
+                    (SegmentValue::Exact(&band.stage), band.start_dt.and_utc()),
+                    (SegmentValue::CenterOf(&band.stage), band.end_dt.and_utc()),
                 ],
                 Into::<ShapeStyle>::into(BLACK).filled()
             )
