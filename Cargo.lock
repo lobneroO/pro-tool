@@ -2163,6 +2163,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d231b230927b5e4ad203db57bbcbee2802f6bce620b1e4a9024a07d94e2907ec"
 
 [[package]]
+name = "plotpy"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "876e2e7e2b3964542035cd0ae43ba84f6d320c04b0516604c25be774430fddb2"
+
+[[package]]
 name = "png"
 version = "0.17.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2213,6 +2219,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "iced",
+ "plotpy",
  "rfd",
 ]
 
