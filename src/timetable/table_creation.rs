@@ -14,6 +14,14 @@ use chrono::NaiveDate;
 
 use crate::band::Band;
 
+/**
+* this code is left only for future reference, if the plotters crate becomes usable.
+* currently, it puts unreasonable demands on variable lifetimes, partially even wants
+* static lifetimes. on top of that, getting coordinates for rectangle plotting is at
+* the very least cumbersome, so it does not fit this project very well.
+* the documentation is lacking, the support non existent and bugs (like not actually
+* writing times onto axes) have not even been acknowledged 3 weeks after reporting them
+*/
 pub fn create_table(out_path: &Path){
     println!("writing image to {}", out_path.display());
 
