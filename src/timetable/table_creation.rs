@@ -3,10 +3,14 @@
 use std::path::Path;
 // use plotters::prelude::{SVGBackend, ChartBuilder, IntoDrawingArea, LabelAreaPosition, IntoSegmentedCoord, DrawingBackend, Rectangle};
 // use plotters::prelude::{BLACK, WHITE};
+// these uses are on purpose to reduce the function signature size when inputting a chart.
+use plotters::coord::ranged1d::SegmentedCoord;
+use plotters::coord::types::RangedSlice;
+use chrono::prelude::{DateTime, Utc};
 // TODO: use above individual use pattern...
 use plotters::prelude::*;
 
-use chrono::{NaiveDate};
+use chrono::NaiveDate;
 
 use crate::band::Band;
 
@@ -62,14 +66,12 @@ pub fn create_table(out_path: &Path){
         end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(19, 00, 0).unwrap(),
     };
 
-    let bands = [ fleshgod, nathrakh, meshuggah ];
+    let bands: Vec<Band> = vec![ fleshgod, nathrakh, meshuggah ];
 
     // use an SVG backend to have selectable text.
     // turn into a pdf for printing later
     let drawing_area = SVGBackend::new(out_path, (1024, 768))
         .into_drawing_area();
-    
-    let stage_segments = stages.into_segmented();
     
     drawing_area.fill(&WHITE).unwrap();
     let mut chart = ChartBuilder::on(&drawing_area)
@@ -83,7 +85,7 @@ pub fn create_table(out_path: &Path){
         // ----|---------------|-------------|-------
         //   main stage     t stage      wera stage 
         // for that behaviour, we need the into_segmented() command
-        .build_cartesian_2d(stage_segments, first_utc..last_utc)
+        .build_cartesian_2d(stages.into_segmented(), first_utc..last_utc)
         .unwrap();
 
     // draw axes labels for time on y axis (top to bottom for increasing time)
@@ -97,7 +99,6 @@ pub fn create_table(out_path: &Path){
     // draw all bands into the chart
     chart.draw_series(
         bands.iter().map(|band| {
-
             Rectangle::new(
                 [
                     (SegmentValue::Exact(&band.stage), band.start_dt.and_utc()),
