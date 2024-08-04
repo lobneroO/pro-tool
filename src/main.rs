@@ -15,7 +15,10 @@ mod timetable {
 }
 
 use gui::pro_tool_state::ProToolState;
+use timetable::table_creation::create_running_order;
 
 fn main() -> iced::Result{
+    // TODO: remove, set to actual GUI call
+    create_running_order();
     ProToolState::run(Settings::default())
 }
