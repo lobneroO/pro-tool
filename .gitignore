@@ -6,3 +6,6 @@
 
 # rust rover
 .idea
+
+# test data
+test.*
