@@ -59,9 +59,11 @@ pub fn create_running_order() {
 
     let bands: Vec<Band> = vec![ fleshgod, nathrakh, meshuggah ];
 
+    // prepare the image that we are going to write to file
+    // let mut img = Image::new();
+   
     // actual plotting code
     let mut plot = Plot::new();
-
 
     // disable the plot's axes, they will be added in subplots
     plot.set_hide_axes(true);
@@ -70,12 +72,14 @@ pub fn create_running_order() {
     // this is a bit hacky, but it gives out the correct time stamps for the wacken 2023 example
     // and should work as long as the y_lim is kept to 27.3 - 10.9
     let hours = vec!("10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00", "0:00", "2:00");
+    let x_ticks: Vec<_> = (0..hours.len()).into_iter().collect();
 
     // for readability of the resulting plot, offset the x position by 0.5
     let x_offset_axis = 0.5;
     // set axes (for bottom left first, then mirror for upper right)
-    plot.set_subplot(0, 0, 0)
+    plot.set_subplot(1, 1, 1)
         .set_num_ticks_x(stages.len())
+        .set_ticks_x_labels(&x_ticks, &hours)
         .set_num_ticks_y(hours.len());
     // axis_bl.yaxis.grid();
     // axis_bl.set_xlim(x_offset_axis, stages.len() + x_offset_axis);
@@ -94,6 +98,15 @@ pub fn create_running_order() {
     // axis_ur.set_xticklabels(axis_bl.get_xticklabels());
     // axis_ur.set_ylabel('Time');
     // axis_ur.set_yticklabels(axis_bl.get_yticklabels());
+    
+    let mut canvas = Canvas::new();
+
+    canvas.draw_rectangle(0.5, 0.5,2.0, 1.0);
+
+    plot.add(&canvas);
+
+    // save the plot
+    plot.save("test_plot.svg").unwrap();
 
     println!("printing running order");
 }
