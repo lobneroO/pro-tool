@@ -66,21 +66,23 @@ pub fn create_running_order() {
     let mut plot = Plot::new();
 
     // disable the plot's axes, they will be added in subplots
-    plot.set_hide_axes(true);
+    // plot.set_hide_axes(true);
 
     // let fig = plot.figure(figsize=(11.69, 8.27));
     // this is a bit hacky, but it gives out the correct time stamps for the wacken 2023 example
     // and should work as long as the y_lim is kept to 27.3 - 10.9
     let hours = vec!("10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00", "0:00", "2:00");
-    let x_ticks: Vec<_> = (0..hours.len()).into_iter().collect();
+    let x_ticks: Vec<_> = (0..stages.len()).into_iter().collect();
+    let y_ticks: Vec<_> = (0..hours.len()).into_iter().collect();
 
     // for readability of the resulting plot, offset the x position by 0.5
     let x_offset_axis = 0.5;
     // set axes (for bottom left first, then mirror for upper right)
     plot.set_subplot(1, 1, 1)
         .set_num_ticks_x(stages.len())
-        .set_ticks_x_labels(&x_ticks, &hours)
-        .set_num_ticks_y(hours.len());
+        .set_ticks_x_labels(&x_ticks, &stages)
+        .set_num_ticks_y(hours.len())
+        .set_ticks_y_labels(&y_ticks, &hours);
     // axis_bl.yaxis.grid();
     // axis_bl.set_xlim(x_offset_axis, stages.len() + x_offset_axis);
     // it will be read downwards, therefore invert the time labels on the axis
