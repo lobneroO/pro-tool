@@ -1,11 +1,11 @@
 // Tim Lobner
-//
-use iced::{Element, Settings, Sandbox};
+
+use iced::{Element, Settings};
 use iced::widget::{button, column, container, horizontal_space, row, text_input};
 use rfd::FileDialog;
 use std::path::Path;
 
-mod ../running_order_parser;
+mod running_order_parser;
 
 // define a struct that contains _ALL_ of the program's state
 #[derive(Default)]
@@ -22,7 +22,7 @@ pub enum Message{
     CreatePersonalRunningOrder,
 }
 
-impl Sandbox for ProToolState {
+impl ProToolState {
     // Message is not necessarily a text,
     // it can also be a button press. 
     // anything that can change the state
@@ -67,7 +67,7 @@ impl Sandbox for ProToolState {
     }
 
 
-    fn view(&self) -> Element<'_, Message> { 
+    pub fn view(&self) -> Element<'_, Message> { 
         // add a text field for the input file path
         let running_order_input = text_input("", &self.running_order_file)
             .padding(10)

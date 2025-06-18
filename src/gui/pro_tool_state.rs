@@ -1,6 +1,6 @@
 // Tim Lobner
 
-use iced::{Element, Sandbox};
+use iced::Element;
 use rfd::FileDialog;
 use std::path::Path;
 
@@ -26,11 +26,11 @@ pub struct ProToolState{
     pub running_order: Vec<Band>,
 }
 
-impl Sandbox for ProToolState {
+impl ProToolState {
     // Message is not necessarily a text,
     // it can also be a button press. 
     // anything that can change the state
-    type Message = Message;
+    // type Message = Message;
 
     fn new() -> Self {
         Self{
@@ -40,11 +40,7 @@ impl Sandbox for ProToolState {
         }
     }
 
-    fn title(&self) -> String {
-        String::from("pro tool")
-    }
-
-    fn update(& mut self, message: Message) {
+    pub fn update(& mut self, message: Message) {
         match message {
             Message::ChooseRunningOrderInput=> {
                 // open a file chooser
@@ -81,7 +77,7 @@ impl Sandbox for ProToolState {
         }
     }
 
-    fn view(&self) -> Element<'_, Message> { 
+    pub fn view(&self) -> Element<'_, Message> { 
         match self.view {
             View::Main => {
                 get_main_view(self)

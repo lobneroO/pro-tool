@@ -1,6 +1,6 @@
 // Tim Lobner
 
-use iced::{Sandbox, Settings};
+use iced::Settings;
 
 mod band;
 mod running_order_parser;
