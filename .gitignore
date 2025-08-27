@@ -9,3 +9,6 @@
 
 # test results
 test.*
+
+# visual studio
+.vs/*
