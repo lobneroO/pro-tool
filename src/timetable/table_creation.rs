@@ -147,6 +147,34 @@ pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<
         }
     }
 
+    // Draw horizontal grid lines at time intervals using chart coordinates
+    for i in 0..num_labels {
+        let label_timestamp = start_timestamp + (i as f64 * label_interval_minutes * 60.0);
+        if label_timestamp <= end_timestamp {
+            let actual_datetime = timestamp_to_datetime(label_timestamp);
+            
+            // Determine if this is a full hour (darker gray) or half hour (light gray)
+            let is_full_hour = actual_datetime.minute() == 0;
+            let line_color = if is_full_hour {
+                RGBColor(128, 128, 128) // Darker gray for full hours
+            } else {
+                RGBColor(200, 200, 200) // Light gray for half hours
+            };
+            
+            // Transform the timestamp to match the visual inversion used by rectangles
+            let transformed_timestamp = transform_time(label_timestamp);
+            
+            // Draw horizontal line across the entire chart width using chart coordinates
+            chart.draw_series(std::iter::once(PathElement::new(
+                vec![
+                    (-margin, transformed_timestamp),
+                    (chart_width - 1.0 + margin, transformed_timestamp)
+                ],
+                line_color.stroke_width(1),
+            )))?;
+        }
+    }
+
     // Draw rectangles and text for each band using numeric coordinates
     for band in bands {
         if let Some(&stage_idx) = stage_to_index.get(&band.stage) {
