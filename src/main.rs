@@ -59,6 +59,13 @@ fn draw_test() {
             end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(15, 30, 0).unwrap(),
             stage: String::from("Wera Tool Rebel Stage"),
             selected: true,
+        },
+        Band {
+            name: String::from("In Sanity"),
+            start_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(11, 30, 0).unwrap(),
+            end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(12, 30, 0).unwrap(),
+            stage: String::from("Wera Tool Rebel Stage"),
+            selected: true,
         }
     ];
     table_creation::create_table(out_path, &bands, "Thursday");

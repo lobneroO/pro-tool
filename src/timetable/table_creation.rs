@@ -3,6 +3,7 @@
 use std::path::Path;
 use std::collections::HashMap;
 use plotters::prelude::*;
+use plotters::style::text_anchor::{Pos, HPos, VPos};
 use chrono::Timelike;
 use chrono::NaiveDate;
 
@@ -116,6 +117,7 @@ pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<
                 String::new()
             }
         })
+        .label_style(("Arial", 20))  // Set font size to 20 to match band names
         .draw()?;
 
     // Generate custom time labels at 30-minute intervals using numeric coordinates
@@ -141,8 +143,8 @@ pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<
             // Draw label to the left of the chart area
             drawing_area.draw(&Text::new(
                 actual_datetime.format("%H:%M").to_string(),
-                (10, pixel_y), // 10 pixels from left edge
-                ("Arial", 12).into_font().color(&BLACK),
+                (5, pixel_y), // 10 pixels from left edge
+                ("Arial", 20).into_font().color(&BLACK),
             ))?;
         }
     }
@@ -208,7 +210,7 @@ pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<
             chart.draw_series(std::iter::once(Text::new(
                 band.name.clone(),
                 (x_center, display_middle),
-                ("Arial", 10).into_font().color(&WHITE),
+                ("Arial", 20).into_font().color(&WHITE).pos(Pos::new(HPos::Center, VPos::Center)),
             )))?;
         }
     }
