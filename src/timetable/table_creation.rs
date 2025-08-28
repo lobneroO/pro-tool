@@ -143,8 +143,8 @@ pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<
             // Draw label to the left of the chart area
             drawing_area.draw(&Text::new(
                 actual_datetime.format("%H:%M").to_string(),
-                (5, pixel_y), // 10 pixels from left edge
-                ("Arial", 20).into_font().color(&BLACK),
+                (5, pixel_y), // 5 pixels from left edge
+                ("Arial", 20).into_font().color(&BLACK).pos(Pos::new(HPos::Left, VPos::Top)),
             ))?;
         }
     }
