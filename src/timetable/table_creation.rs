@@ -43,21 +43,26 @@ pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<
 
     drawing_area.fill(&WHITE)?;
     
-    // Use simple coordinates with integer x-axis for stages
+    // Ensure rectangles are fully visible by providing enough margin
+    // Rectangle width is 0.8, so we need at least 0.4 padding on each side
+    let chart_width = stage_names.len() as f32;
+    let margin = 0.5; // Slightly more than half the rectangle width for safety
     let mut chart = ChartBuilder::on(&drawing_area)
         .caption(day_label, ("Arial", 30))
         .set_label_area_size(LabelAreaPosition::Left, 60)
         .set_label_area_size(LabelAreaPosition::Bottom, 100)
-        .build_cartesian_2d(0f32..(stage_names.len() as f32), first_utc..last_utc)?;
+        .build_cartesian_2d(-margin..(chart_width - 1.0 + margin), first_utc..last_utc)?;
 
-    // Configure the mesh and labels
+    // Configure the mesh - position labels at rectangle centers
     chart
         .configure_mesh()
         .disable_x_mesh()
         .y_desc("Time")
+        .y_max_light_lines(1)
         .x_desc("Stages")
+        .x_labels(stage_names.len())
         .x_label_formatter(&|x| {
-            let idx = *x as usize;
+            let idx = x.round() as usize;
             if idx < stage_names.len() {
                 stage_names[idx].clone()
             } else {
@@ -69,13 +74,18 @@ pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<
     // Draw rectangles and text for each band
     for band in bands {
         if let Some(&stage_idx) = stage_to_index.get(&band.stage) {
-            let x_pos = stage_idx as f32;
+            // Position rectangles so their centers align with the integer tick marks
+            let x_center = stage_idx as f32;
+            let rect_width = 0.8;
+            let x_start = x_center - rect_width / 2.0;
+            let x_end = x_center + rect_width / 2.0;
+            
             let start_time = band.start_dt.and_utc();
             let end_time = band.end_dt.and_utc();
             
-            // Draw the band rectangle
+            // Draw the band rectangle centered on the tick mark
             chart.draw_series(std::iter::once(Rectangle::new(
-                [(x_pos, start_time), (x_pos + 0.8, end_time)],
+                [(x_start, start_time), (x_end, end_time)],
                 BLUE.mix(0.7).filled(),
             )))?;
             
@@ -83,10 +93,10 @@ pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<
             let duration_seconds = (end_time.timestamp() - start_time.timestamp()) / 2;
             let middle_time = start_time + chrono::Duration::seconds(duration_seconds);
             
-            // Draw band name
+            // Draw band name at the center of the rectangle
             chart.draw_series(std::iter::once(Text::new(
                 band.name.clone(),
-                (x_pos + 0.4, middle_time),
+                (x_center, middle_time),
                 ("Arial", 10).into_font().color(&WHITE),
             )))?;
         }
