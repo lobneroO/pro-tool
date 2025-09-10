@@ -83,7 +83,7 @@ impl ProToolState {
                         selected: true,
                     },
                 ];
-                table_creation::create_table(out_path, &bands, "Thursday");
+                table_creation::create_table(out_path, &bands); //, "Thursday");
             },
             Message::CreatePersonalRunningOrder => {
                 self.running_order = running_order_parser::parse_running_order(Path::new(&self.running_order_file));

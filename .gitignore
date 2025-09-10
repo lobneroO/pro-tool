@@ -8,7 +8,7 @@
 .idea
 
 # test results
-test.*
+*test.*
 
 # visual studio
 .vs/*

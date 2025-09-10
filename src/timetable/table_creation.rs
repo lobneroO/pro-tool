@@ -4,14 +4,38 @@ use std::path::Path;
 use std::collections::HashMap;
 use plotters::prelude::*;
 use plotters::style::text_anchor::{Pos, HPos, VPos};
-use chrono::Timelike;
+use chrono::{Datelike, Timelike};
 use chrono::NaiveDate;
 
 use crate::band::Band;
 
+/// Creates an SVG timetable with stages on the x-axis and bands as rectangles on the y-axis
+/// for every day that used in the bands list.
+/// The number of stages is determined dynamically from the band's data.
+pub fn create_table(out_path: &Path, bands: &[Band]) {
+    // sort into a list per day
+    let mut days: HashMap<NaiveDate, Vec<&Band>> = HashMap::new();
+    // find all available days
+    for b in bands {
+        if let std::collections::hash_map::Entry::Vacant(e) = days.entry(b.start_dt.date()) {
+            e.insert(vec![&b]);
+        } else {
+            let day_bands = days.get_mut(&b.start_dt.date());
+            day_bands.unwrap().push(b);
+        }
+    }
+
+    // bands are sorted, create a table for each day
+    for (day, day_bands) in days {
+        let day_out_path = out_path.parent().unwrap().join(day.to_string() + out_path.file_name().unwrap().to_str().unwrap());
+        let day_label = day.to_string();
+        _ = create_table_for_day(day_out_path.as_path(), day_bands.as_slice(), &day_label);
+    }
+}
+
 /// Creates an SVG timetable with stages on the x-axis and bands as rectangles on the y-axis.
 /// The number of stages is determined dynamically from the bands' data.
-pub fn create_table(out_path: &Path, bands: &[Band], day_label: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -> Result<(), Box<dyn std::error::Error>> {
     println!("writing image to {}", out_path.display());
 
     if bands.is_empty() {
