@@ -65,7 +65,7 @@ fn draw_test() {
             start_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(11, 30, 0).unwrap(),
             end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(12, 30, 0).unwrap(),
             stage: String::from("Wera Tool Rebel Stage"),
-            selected: true,
+            selected: false,
         },
 
         Band {
@@ -83,7 +83,7 @@ fn draw_test() {
             selected: true,
         }
     ];
-    table_creation::create_table(out_path, &bands); // , "Thursday");
+    table_creation::create_table(out_path, &bands);
 }
 
 fn main() {

@@ -3,8 +3,9 @@
 use std::path::Path;
 use std::collections::HashMap;
 use plotters::prelude::*;
+use plotters::style::full_palette::GREY;
 use plotters::style::text_anchor::{Pos, HPos, VPos};
-use chrono::{Datelike, Timelike};
+use chrono::Timelike;
 use chrono::NaiveDate;
 
 use crate::band::Band;
@@ -72,7 +73,7 @@ pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -
         .with_nanosecond(0).unwrap() - chrono::Duration::minutes(30);
     
     // End: 30 minutes after last end time, rounded up to nearest 30 minutes  
-    let display_end_minutes = ((last_utc.minute() + 29) / 30) * 30;
+    let display_end_minutes = last_utc.minute().div_ceil(30);
     let display_end = if display_end_minutes >= 60 {
         last_utc
             .with_minute(0).unwrap()
@@ -221,9 +222,10 @@ pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -
             let display_end_pos = transform_time(end_timestamp);
             
             // Draw the band rectangle with transformed coordinates
+            let color = if band.selected { BLUE.mix(0.7).filled() } else { GREY.mix(0.7).filled() };
             chart.draw_series(std::iter::once(Rectangle::new(
                 [(x_start, display_start_pos), (x_end, display_end_pos)],
-                BLUE.mix(0.7).filled(),
+                color,
             )))?;
             
             // Calculate middle time for text
