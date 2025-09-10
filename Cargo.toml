@@ -8,7 +8,8 @@ edition = "2021"
 [dependencies]
 chrono = "=0.4.38"
 # GUI library
-iced = "0.12"
+iced = "0.13.1"
+plotters = "0.3.7"
 
 # file chooser
 rfd = "0.14.1"

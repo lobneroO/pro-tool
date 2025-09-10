@@ -6,3 +6,9 @@
 
 # rust rover
 .idea
+
+# test results
+*test.*
+
+# visual studio
+.vs/*
