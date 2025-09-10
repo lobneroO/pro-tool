@@ -86,10 +86,10 @@ fn draw_test() {
     table_creation::create_table(out_path, &bands);
 }
 
-fn main() {
-    draw_test();
-}
-// fn main() -> iced::Result{
-//     iced::application("Pro Tool", ProToolState::update, ProToolState::view)
-//         .run()
+// fn main() {
+//     draw_test();
 // }
+fn main() -> iced::Result{
+    iced::application("Pro Tool", ProToolState::update, ProToolState::view)
+        .run()
+}
