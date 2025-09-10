@@ -43,6 +43,7 @@ struct Clash {
 
 /// Returns a slice of all bands that are selected and clashing with other selected bands.
 /// All of these clashing bands must be displayed in red, all other (selected) bands in green
+#[allow(clippy::needless_range_loop)]
 fn get_clashes(bands: &[&Band]) -> Vec<Clash> {
     let mut clashes = Vec::new();
 
@@ -61,11 +62,14 @@ fn get_clashes(bands: &[&Band]) -> Vec<Clash> {
 
             if band_a.start_dt < band_b.end_dt && band_a.start_dt >= band_b.start_dt {
                 // band a is starting while band b is playing. clash.
-                clashes.push(Clash{ name: band_a.name.clone(), start_dt: band_a.start_dt});
-                clashes.push(Clash{ name: band_b.name.clone(), start_dt: band_b.start_dt});
-                // TODO: this can add one band multiple times. this is inefficient,
-                // but shouldn't destroy the logic - if a band is in the clashes list,
-                // it must be marked regardless of number of times it is added
+                let index_a = clashes.iter().position(|b: &Clash| b.name == band_a.name && b.start_dt == band_a.start_dt);
+                let index_b = clashes.iter().position(|b: &Clash| b.name == band_b.name && b.start_dt == band_b.start_dt);
+                if index_a.is_none() {
+                    clashes.push(Clash{ name: band_a.name.clone(), start_dt: band_a.start_dt});
+                }
+                if index_b.is_none() {
+                    clashes.push(Clash{ name: band_b.name.clone(), start_dt: band_b.start_dt});
+                }
             }
         }
     }
