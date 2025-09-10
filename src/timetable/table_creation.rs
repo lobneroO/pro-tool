@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use plotters::prelude::*;
 use plotters::style::full_palette::GREY;
 use plotters::style::text_anchor::{Pos, HPos, VPos};
-use chrono::Timelike;
+use chrono::{NaiveDateTime, Timelike};
 use chrono::NaiveDate;
 
 use crate::band::Band;
@@ -32,6 +32,54 @@ pub fn create_table(out_path: &Path, bands: &[Band]) {
         let day_label = day.to_string();
         _ = create_table_for_day(day_out_path.as_path(), day_bands.as_slice(), &day_label);
     }
+}
+
+
+/// all the info needed for clashes
+struct Clash {
+    pub name: String,
+    pub start_dt: NaiveDateTime, 
+}
+
+/// Returns a slice of all bands that are selected and clashing with other selected bands.
+/// All of these clashing bands must be displayed in red, all other (selected) bands in green
+fn get_clashes(bands: &[&Band]) -> Vec<Clash> {
+    let mut clashes = Vec::new();
+
+    // compare every band against every other band
+    for i in 0..bands.len() - 1 {
+        let band_a = bands[i];
+        if !band_a.selected {
+            continue;
+        }
+
+        for j in i+1..bands.len() {
+            let band_b = bands[j];
+            if !band_b.selected {
+                continue;
+            }
+
+            if band_a.start_dt < band_b.end_dt && band_a.start_dt >= band_b.start_dt {
+                // band a is starting while band b is playing. clash.
+                clashes.push(Clash{ name: band_a.name.clone(), start_dt: band_a.start_dt});
+                clashes.push(Clash{ name: band_b.name.clone(), start_dt: band_b.start_dt});
+                // TODO: this can add one band multiple times. this is inefficient,
+                // but shouldn't destroy the logic - if a band is in the clashes list,
+                // it must be marked regardless of number of times it is added
+            }
+        }
+    }
+
+    clashes
+}
+
+fn is_band_clashing(band: &Band, clashes: &Vec<Clash>) -> bool {
+    for b in clashes {
+        if b.name == band.name && b.start_dt == band.start_dt {
+            return true;
+        }
+    }
+    false
 }
 
 /// Creates an SVG timetable with stages on the x-axis and bands as rectangles on the y-axis.
@@ -202,6 +250,9 @@ pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -
         }
     }
 
+    // get clashes information
+    let clashes = get_clashes(bands);
+
     // Draw rectangles and text for each band using numeric coordinates
     for band in bands {
         if let Some(&stage_idx) = stage_to_index.get(&band.stage) {
@@ -222,7 +273,13 @@ pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -
             let display_end_pos = transform_time(end_timestamp);
             
             // Draw the band rectangle with transformed coordinates
-            let color = if band.selected { BLUE.mix(0.7).filled() } else { GREY.mix(0.7).filled() };
+            let color = if band.selected { 
+                if is_band_clashing(band, &clashes) {
+                    RED.mix(0.7).filled() 
+                } else {
+                    GREEN.mix(0.7).filled()
+                }
+            } else { GREY.mix(0.7).filled() };
             chart.draw_series(std::iter::once(Rectangle::new(
                 [(x_start, display_start_pos), (x_end, display_end_pos)],
                 color,
