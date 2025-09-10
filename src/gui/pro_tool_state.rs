@@ -59,31 +59,7 @@ impl ProToolState {
             Message::CreateCompleteRunningOrder => {
                 self.running_order = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
                 let out_path = Path::new("test.svg");
-                // table_creation::create_table(out_path);
-                let bands = vec![
-                    Band {
-                        name: String::from("Fleshgod Apocalypse"),
-                        start_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(12, 0, 0).unwrap(),
-                        end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(13, 0, 0).unwrap(),
-                        stage: String::from("T-Stage"),
-                        selected: true,
-                    },
-                    Band {
-                        name: String::from("Anaal Nathrakh"),
-                        start_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(13, 15, 0).unwrap(),
-                        end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(14, 0, 0).unwrap(),
-                        stage: String::from("T-Stage"),
-                        selected: true,
-                    },
-                    Band {
-                        name: String::from("Meshuggah"),
-                        start_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(14, 30, 0).unwrap(),
-                        end_dt: NaiveDate::from_ymd_opt(2024, 8, 15).unwrap().and_hms_opt(15, 30, 0).unwrap(),
-                        stage: String::from("Main Stage"),
-                        selected: true,
-                    },
-                ];
-                table_creation::create_table(out_path, &bands); //, "Thursday");
+                table_creation::create_table(out_path, &self.running_order);
             },
             Message::CreatePersonalRunningOrder => {
                 self.running_order = running_order_parser::parse_running_order(Path::new(&self.running_order_file));
