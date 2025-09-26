@@ -2,6 +2,7 @@
 
 use std::path::Path;
 use std::collections::HashMap;
+use std::time::Duration;
 use plotters::prelude::*;
 use plotters::style::full_palette::GREY;
 use plotters::style::text_anchor::{Pos, HPos, VPos};
@@ -44,18 +45,18 @@ struct Clash {
 /// Returns a slice of all bands that are selected and clashing with other selected bands.
 /// All of these clashing bands must be displayed in red, all other (selected) bands in green
 #[allow(clippy::needless_range_loop)]
-fn get_clashes(bands: &[&Band]) -> Vec<Clash> {
+fn get_clashes(bands: &Vec<Band>) -> Vec<Clash> {
     let mut clashes = Vec::new();
 
     // compare every band against every other band
     for i in 0..bands.len() - 1 {
-        let band_a = bands[i];
+        let band_a = &bands[i];
         if !band_a.selected {
             continue;
         }
 
         for j in i+1..bands.len() {
-            let band_b = bands[j];
+            let band_b = &bands[j];
             if !band_b.selected {
                 continue;
             }
@@ -95,8 +96,34 @@ pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -
         return Err("No bands provided".into());
     }
 
+    // we assume the last band is entered with a time of somewhere between 12 am
+    // (i.e. 0:00 o'clock) and 5 am. however, we also assume the date is entered
+    // of the time table day (e.g. in a night friday->saturday, 2 am on saturday,
+    // but the date of a friday) - this is how summer breeze lists their times as well
+    // this doesn't match with how NativeDate works, of course, so we have to adjust that
+    let mut adjusted_bands: Vec<Band> = Vec::new();
+    for band in bands {
+        let mut start_date = band.start_dt;
+        let mut end_date = band.end_dt;
+        if band.start_dt.hour() < 5 {
+            start_date += chrono::Duration::days(1);
+        }
+        if band.end_dt.hour() < 5 {
+            end_date += chrono::Duration::days(1);
+        }
+
+        let adjusted_band = Band{
+            name: band.name.clone(),
+            start_dt: start_date,
+            end_dt: end_date,
+            stage: band.stage.clone(),
+            selected: band.selected,
+        };
+        adjusted_bands.push(adjusted_band);
+    }
+
     // Collect unique stage names
-    let mut stage_names: Vec<String> = bands.iter()
+    let mut stage_names: Vec<String> = adjusted_bands.iter()
         .map(|b| b.stage.clone())
         .collect();
     stage_names.sort();
@@ -110,8 +137,8 @@ pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -
         .collect();
 
     // Find the earliest start and latest end time among all bands
-    let first_band_start = bands.iter().map(|b| b.start_dt).min().unwrap();
-    let last_band_end = bands.iter().map(|b| b.end_dt).max().unwrap();
+    let first_band_start = adjusted_bands.iter().map(|b| b.start_dt).min().unwrap();
+    let mut last_band_end = adjusted_bands.iter().map(|b| b.end_dt).max().unwrap();
     
     let first_utc = first_band_start.and_utc();
     let last_utc = last_band_end.and_utc();
@@ -255,10 +282,10 @@ pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -
     }
 
     // get clashes information
-    let clashes = get_clashes(bands);
+    let clashes = get_clashes(&adjusted_bands);
 
     // Draw rectangles and text for each band using numeric coordinates
-    for band in bands {
+    for band in adjusted_bands {
         if let Some(&stage_idx) = stage_to_index.get(&band.stage) {
             // Position rectangles so their centers align with the integer tick marks
             let x_center = stage_idx as f32;
@@ -278,7 +305,7 @@ pub fn create_table_for_day(out_path: &Path, bands: &[&Band], day_label: &str) -
             
             // Draw the band rectangle with transformed coordinates
             let color = if band.selected { 
-                if is_band_clashing(band, &clashes) {
+                if is_band_clashing(&band, &clashes) {
                     RED.mix(0.7).filled() 
                 } else {
                     GREEN.mix(0.7).filled()
