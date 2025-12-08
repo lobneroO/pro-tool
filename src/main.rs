@@ -1,7 +1,7 @@
 // Tim Lobner
 
 use chrono::NaiveDate;
-use iced::Settings;
+// use iced::Settings;
 
 use std::path::Path;
 
@@ -20,8 +20,9 @@ mod timetable{
 use crate::band::Band;
 use crate::timetable::table_creation;
 use gui::pro_tool_state::ProToolState;
-use plotters::prelude::*;
+// use plotters::prelude::*;
 
+#[allow(dead_code)]
 fn draw_test() {
     // let mut backend = SVGBackend::new("test.svg", (1024, 768));
     // _ = backend.draw_rect((10, 10), (25, 50), &RED, true);
@@ -90,6 +91,8 @@ fn draw_test() {
 //     draw_test();
 // }
 fn main() -> iced::Result{
-    iced::application("Pro Tool", ProToolState::update, ProToolState::view)
+    // iced::application("Pro Tool", ProToolState::update, ProToolState::view)
+    iced::application(ProToolState::default, ProToolState::update, ProToolState::view)
+        .title("Pro Tool")
         .run()
 }

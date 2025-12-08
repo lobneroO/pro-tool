@@ -21,7 +21,8 @@ pub struct Band{
 impl Band{
     pub fn view(&self) -> Element<BandMessage> {
         let r = row![
-            checkbox(self.name.clone(), self.selected)
+            checkbox(self.selected)
+                .label(self.name.clone())
                 .on_toggle(BandMessage::Toggled)
         ];
 
