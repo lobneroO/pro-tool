@@ -1,6 +1,6 @@
 
 use iced::Element;
-use iced::widget::{button, column, container, horizontal_space, row, text_input};
+use iced::widget::{button, column, container, space, row, text_input};
 use std::path::Path;
 
 use crate::gui::message::Message;
@@ -16,9 +16,9 @@ pub fn get_main_view(state: &ProToolState) -> Element<Message> {
     let running_order_file_chooser = button("...").on_press(Message::ChooseRunningOrderInput);
 
     // put into a row layout
-    let choose_row = row![horizontal_space(), horizontal_space(), 
-        running_order_input, horizontal_space(), running_order_file_chooser, 
-        horizontal_space(), horizontal_space()];
+    let choose_row = row![space::horizontal(), space::horizontal(), 
+        running_order_input, space::horizontal(), running_order_file_chooser, 
+        space::horizontal(), space::horizontal()];
 
     // create a button for a complete running order 
     // and one for a personal running order creation
@@ -36,10 +36,10 @@ pub fn get_main_view(state: &ProToolState) -> Element<Message> {
     // create a button for settings
     let settings_button = button("Open Settings");
 
-    let second_row = row![horizontal_space(), horizontal_space(), 
-        create_full_button, horizontal_space(), create_personal_button,
-        horizontal_space(), horizontal_space()];
-    let third_row = row![horizontal_space(), settings_button, horizontal_space()];
+    let second_row = row![space::horizontal(), space::horizontal(), 
+        create_full_button, space::horizontal(), create_personal_button,
+        space::horizontal(), space::horizontal()];
+    let third_row = row![space::horizontal(), settings_button, space::horizontal()];
 
     container(column![choose_row, second_row, third_row]).padding(10).into()
 }

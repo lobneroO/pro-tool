@@ -1,6 +1,7 @@
 
 use iced::Element;
-use iced::widget::{button, column, container, horizontal_space, row, scrollable};
+use iced::widget::{button, column, container, space, row, scrollable};
+use iced::Fill;
 
 use crate::gui::message::Message;
 use crate::gui::pro_tool_state::ProToolState;
@@ -9,6 +10,7 @@ use crate::band::{Band, BandMessage};
 pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
     // for every band, add a checkbox
     // we want to have multiple columns. assume 3 (TODO: make variable, based on window width!)
+    //
     // the sorting is: first column starting with lowest name (e.g. aborted, amon amarth, ...)
     // and so forth until the column is done and the next one starts. then go down again with the 
     // current name and onwards (e.g. fleshgod apocalypse, gojira, hammerfall)
@@ -36,6 +38,35 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
     let third_slice_start = first_slice_size + second_slice_size;
     let second_slice = &state.running_order[first_slice_size..third_slice_start];
     let third_slice = &state.running_order[third_slice_start..];
+
+    // calculate the maximum width of a band selection (i.e. the box + the longest name)
+    let full_slice = &state.running_order.as_slice();
+    // TODO: replace wrap_horizontal with column wrap (new in iced 14)
+    let band_column = column(
+        full_slice
+            .iter()
+            .map(Band::view)
+            .enumerate()
+            .map(|(index, band)| {
+                #[allow(unused_variables)]
+                band.map(move |message: BandMessage|
+                    Message::BandSelected(index, !state.running_order[index].selected))
+            })
+    );
+    // let test_column = column![
+    //     column(
+    //         full_slice
+    //         .iter()
+    //         .map(Band::view)
+    //         .enumerate()
+    //         .map(|(index, band)| {
+    //             #[allow(unused_variables)]
+    //             band.map(move |message: BandMessage|
+    //                 Message::BandSelected(index, !state.running_order[index].selected))
+    //         })
+    //     )].width(Fill);//.wrap();
+    // let max_width = test_column.wrap();
+
 
     let band_grid = row![
         column(
@@ -72,7 +103,12 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
                 })
         )
     ];
-    let scroll_band_grid = scrollable(band_grid);
+    // let scroll_band_grid = scrollable(band_grid)
+    //     .width(Fill)
+    //     .height(Fill);
+    let scroll_band_grid = scrollable(band_column)
+        .width(Fill)
+        .height(Fill);
 
         // TODO: the following does all bands. I'll leave it here as a reminder of how it works
         // column(
@@ -105,6 +141,6 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
     let back_button = button("Back")
         .on_press(Message::Back);
     let settings_button = button("Open Settings");
-    let third_row = row![horizontal_space(), back_button, settings_button, horizontal_space()];
+    let third_row = row![space::horizontal(), back_button, settings_button, space::horizontal()];
     container(column![scroll_band_grid, third_row]).padding(10).into()
 }
