@@ -55,7 +55,10 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
             // fluid adjusts the amount of columns. max 123 is not a great value,
             // but in effect it says the user can pull the width of the window as far as they want,
             // without running into a limit
-    ).fluid(123);
+    )
+        .fluid(123)
+        .height(grid::Sizing::EvenlyDistribute(iced::Length::Shrink))
+    ;
     let scroll_band_grid = scrollable(band_auto_grid);
 
         // TODO: the following does all bands. I'll leave it here as a reminder of how it works
