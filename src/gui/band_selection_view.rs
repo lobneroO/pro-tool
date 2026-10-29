@@ -1,6 +1,6 @@
 
 use iced::Element;
-use iced::widget::{button, column, container, space, row, scrollable};
+use iced::widget::{button, column, container, grid, space, row, scrollable};
 use iced::Fill;
 
 use crate::gui::message::Message;
@@ -41,8 +41,8 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
 
     // calculate the maximum width of a band selection (i.e. the box + the longest name)
     let full_slice = &state.running_order.as_slice();
-    // TODO: replace wrap_horizontal with column wrap (new in iced 14)
-    let band_column = column(
+    
+    let band_auto_grid = grid(
         full_slice
             .iter()
             .map(Band::view)
@@ -52,63 +52,11 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
                 band.map(move |message: BandMessage|
                     Message::BandSelected(index, !state.running_order[index].selected))
             })
-    );
-    // let test_column = column![
-    //     column(
-    //         full_slice
-    //         .iter()
-    //         .map(Band::view)
-    //         .enumerate()
-    //         .map(|(index, band)| {
-    //             #[allow(unused_variables)]
-    //             band.map(move |message: BandMessage|
-    //                 Message::BandSelected(index, !state.running_order[index].selected))
-    //         })
-    //     )].width(Fill);//.wrap();
-    // let max_width = test_column.wrap();
-
-
-    let band_grid = row![
-        column(
-            first_slice
-                .iter()
-                .map(Band::view)
-                .enumerate()
-                .map(|(index, band)| {
-                    #[allow(unused_variables)]
-                    band.map(move |message: BandMessage|
-                        Message::BandSelected(index, !state.running_order[index].selected))
-                })
-        ),
-        column(
-            second_slice
-                .iter()
-                .map(Band::view)
-                .enumerate()
-                .map(|(index, band)| {
-                    #[allow(unused_variables)]
-                    band.map(move |message: BandMessage|
-                        Message::BandSelected(index + first_slice_size, !state.running_order[index + first_slice_size].selected))
-                })
-        ),
-        column(
-            third_slice 
-                .iter()
-                .map(Band::view)
-                .enumerate()
-                .map(|(index, band)| {
-                    #[allow(unused_variables)]
-                    band.map(move |message: BandMessage|
-                        Message::BandSelected(index + third_slice_start, !state.running_order[index + third_slice_start].selected))
-                })
-        )
-    ];
-    // let scroll_band_grid = scrollable(band_grid)
-    //     .width(Fill)
-    //     .height(Fill);
-    let scroll_band_grid = scrollable(band_column)
-        .width(Fill)
-        .height(Fill);
+            // fluid adjusts the amount of columns. max 123 is not a great value,
+            // but in effect it says the user can pull the width of the window as far as they want,
+            // without running into a limit
+    ).fluid(123);
+    let scroll_band_grid = scrollable(band_auto_grid);
 
         // TODO: the following does all bands. I'll leave it here as a reminder of how it works
         // column(
