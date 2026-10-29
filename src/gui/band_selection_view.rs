@@ -57,9 +57,7 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
             // without running into a limit
     )
         .fluid(123)
-        .height(grid::Sizing::EvenlyDistribute(iced::Length::Shrink))
-    ;
-    let scroll_band_grid = scrollable(band_auto_grid);
+        .height(grid::Sizing::EvenlyDistribute(iced::Length::Shrink));
 
         // TODO: the following does all bands. I'll leave it here as a reminder of how it works
         // column(
@@ -93,5 +91,5 @@ pub fn get_band_selection_view(state: &ProToolState) -> Element<Message> {
         .on_press(Message::Back);
     let settings_button = button("Open Settings");
     let third_row = row![space::horizontal(), back_button, settings_button, space::horizontal()];
-    container(column![scroll_band_grid, third_row]).padding(10).into()
+    container(scrollable(column![band_auto_grid, third_row])).padding(10).into()
 }
